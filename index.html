@@ -39,110 +39,90 @@
     <div id="tab-tracker" class="flex-1 flex flex-col w-full h-full">
         <!-- Sticky Header containing Clock and Controls -->
         <header class="sticky top-0 z-40 bg-gray-900 border-b border-gray-700 shadow-md">
-            <h1 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Team 9 - Grade 4</h1>
-            
-            <!-- Master Game Clock -->
-            <div class="text-6xl font-bold font-mono tracking-tight mb-4 text-white" id="master-clock">
-                00:00
+            <div class="px-4 pt-4 pb-2">
+                <h1 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 text-center">Team 9 - Grade 4</h1>
+                
+                <!-- Master Game Clock -->
+                <div class="text-6xl font-bold font-mono tracking-tight mb-4 text-white text-center" id="master-clock">
+                    28:00
+                </div>
+
+                <!-- Clock Controls -->
+                <div class="flex space-x-4 w-full max-w-md mx-auto">
+                    <button id="btn-start-pause" class="flex-1 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg" onclick="toggleClock()">
+                        START
+                    </button>
+                    <button class="flex-none bg-red-900/50 hover:bg-red-800 text-red-300 font-bold py-4 px-6 rounded-xl border border-red-800 transition-colors text-lg" onclick="showResetModal()">
+                        Reset
+                    </button>
+                </div>
             </div>
 
-            <!-- Clock Controls -->
-            <div class="flex space-x-4 w-full">
-                <button id="btn-start-pause" class="flex-1 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg" onclick="toggleClock()">
-                    START
-                </button>
-                <button class="flex-none bg-red-900/50 hover:bg-red-800 text-red-300 font-bold py-4 px-6 rounded-xl border border-red-800 transition-colors text-lg" onclick="showResetModal()">
-                    Reset
-                </button>
+            <!-- 5-Player Validation Warning Banner -->
+            <div id="warning-banner" class="hidden bg-red-600 text-white px-4 py-2 text-center text-sm font-semibold transition-all shadow-inner">
+                <!-- Content injected dynamically by JS -->
             </div>
-        </div>
+        </header>
 
-        <!-- 5-Player Validation Warning Banner -->
-        <div id="warning-banner" class="hidden bg-red-600 text-white px-4 py-2 text-center text-sm font-semibold transition-all shadow-inner">
-            <!-- Content injected dynamically by JS -->
-        </div>
-    </header>
-
-    <!-- Player List Container -->
-    <main class="flex-1 overflow-y-auto pb-8">
-        <div class="max-w-md mx-auto px-4 py-4 space-y-3" id="player-list">
-            <!-- Player rows will be injected here by JavaScript -->
-        </div>
-    </main>
+        <!-- Player List Container -->
+        <main class="flex-1 overflow-y-auto pb-8">
+            <div class="max-w-md mx-auto px-4 py-4 space-y-3" id="player-list">
+                <!-- Player rows will be injected here by JavaScript -->
+            </div>
+        </main>
     </div>
 
     <!-- Tab 2: Rotation Guide -->
     <div id="tab-guide" class="hidden flex-1 overflow-y-auto w-full pb-8">
         <div class="max-w-md mx-auto px-4 py-6 space-y-4">
             <h2 class="text-2xl font-bold text-white mb-2">Rotation Guide</h2>
-            <p class="text-gray-400 text-sm mb-6 leading-relaxed">To ensure equal playing time (17.5 mins/player), Centers (Carter/Elliott) and Point Guards (Jack/Gabe) must overlap for exactly 2 shifts. This schedule keeps them separated until the final 7 minutes.</p>
             
-            <div class="space-y-3">
+            <div class="bg-blue-900/30 border border-blue-800 rounded-xl p-4 mb-6">
+                <p class="text-blue-200 text-sm leading-relaxed">
+                    <span class="font-bold text-blue-400 block mb-1">Strategy Notes:</span>
+                    This 4-shift setup guarantees Centers (Elliott/Carter) and PGs (Gabe/Jack) <strong>never overlap</strong>. It also ensures every boy plays at least 14 minutes, satisfying the league rule of playing half the game.
+                </p>
+            </div>
+            
+            <div class="space-y-4">
                 <!-- Shift 1 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 1</span>
-                        <span class="text-gray-400 text-sm font-mono">28:00 - 24:30</span>
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-green-400 font-bold text-lg">Shift 1 <span class="text-xs text-gray-400 font-normal ml-2 uppercase tracking-wider">1st Half</span></span>
+                        <span class="bg-gray-900 text-gray-300 px-3 py-1 rounded-full text-sm font-mono border border-gray-700">14:00 - 7:00</span>
                     </div>
-                    <p class="text-white text-sm">Carter, Jack, Helio, Finn, Miles</p>
+                    <p class="text-white text-base">Elliott, Gabe, Morgan, Finn, Helio</p>
                 </div>
+                
                 <!-- Shift 2 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 2</span>
-                        <span class="text-gray-400 text-sm font-mono">24:30 - 21:00</span>
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-green-400 font-bold text-lg">Shift 2 <span class="text-xs text-gray-400 font-normal ml-2 uppercase tracking-wider">1st Half</span></span>
+                        <span class="bg-gray-900 text-gray-300 px-3 py-1 rounded-full text-sm font-mono border border-gray-700">7:00 - 0:00</span>
                     </div>
-                    <p class="text-white text-sm">Elliott, Gabe, Finn, Miles, Morgan</p>
+                    <p class="text-white text-base">Carter, Jack, Morgan, Miles, Helio</p>
                 </div>
+                
                 <!-- Shift 3 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 3</span>
-                        <span class="text-gray-400 text-sm font-mono">21:00 - 17:30</span>
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 relative overflow-hidden mt-6">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-yellow-400 font-bold text-lg">Shift 3 <span class="text-xs text-gray-400 font-normal ml-2 uppercase tracking-wider">2nd Half</span></span>
+                        <span class="bg-gray-900 text-gray-300 px-3 py-1 rounded-full text-sm font-mono border border-gray-700">14:00 - 7:00</span>
                     </div>
-                    <p class="text-white text-sm">Carter, Jack, Helio, Miles, Morgan</p>
+                    <p class="text-white text-base">Elliott, Gabe, Finn, Miles, Morgan</p>
                 </div>
+                
                 <!-- Shift 4 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 4</span>
-                        <span class="text-gray-400 text-sm font-mono">17:30 - 14:00</span>
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-yellow-400 font-bold text-lg">Shift 4 <span class="text-xs text-gray-400 font-normal ml-2 uppercase tracking-wider">2nd Half</span></span>
+                        <span class="bg-gray-900 text-gray-300 px-3 py-1 rounded-full text-sm font-mono border border-gray-700">7:00 - 0:00</span>
                     </div>
-                    <p class="text-white text-sm">Elliott, Gabe, Helio, Finn, Morgan</p>
-                </div>
-                <!-- Shift 5 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 5</span>
-                        <span class="text-gray-400 text-sm font-mono">14:00 - 10:30</span>
-                    </div>
-                    <p class="text-white text-sm">Carter, Gabe, Helio, Finn, Miles</p>
-                </div>
-                <!-- Shift 6 -->
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-green-400 font-bold">Shift 6</span>
-                        <span class="text-gray-400 text-sm font-mono">10:30 - 7:00</span>
-                    </div>
-                    <p class="text-white text-sm">Elliott, Jack, Finn, Miles, Morgan</p>
-                </div>
-                <!-- Shift 7 -->
-                <div class="bg-blue-900/40 rounded-xl p-4 border border-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.15)] relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-16 h-16 bg-blue-500/20 blur-2xl"></div>
-                    <div class="flex justify-between items-center mb-2 relative">
-                        <span class="text-blue-400 font-bold">Shift 7 <span class="text-xs uppercase tracking-wider ml-2 bg-blue-800 text-blue-200 px-2 py-0.5 rounded-full">Overlap</span></span>
-                        <span class="text-blue-300 text-sm font-mono">7:00 - 3:30</span>
-                    </div>
-                    <p class="text-white text-sm relative"><span class="font-bold text-blue-300">Carter, Elliott, Jack, Gabe</span>, Helio</p>
-                </div>
-                <!-- Shift 8 -->
-                <div class="bg-blue-900/40 rounded-xl p-4 border border-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.15)] relative overflow-hidden">
-                    <div class="absolute right-0 top-0 w-16 h-16 bg-blue-500/20 blur-2xl"></div>
-                    <div class="flex justify-between items-center mb-2 relative">
-                        <span class="text-blue-400 font-bold">Shift 8 <span class="text-xs uppercase tracking-wider ml-2 bg-blue-800 text-blue-200 px-2 py-0.5 rounded-full">Overlap</span></span>
-                        <span class="text-blue-300 text-sm font-mono">3:30 - 0:00</span>
-                    </div>
-                    <p class="text-white text-sm relative"><span class="font-bold text-blue-300">Carter, Elliott, Jack, Gabe</span>, Morgan</p>
+                    <p class="text-white text-base">Carter, Jack, Finn, Helio, Miles</p>
                 </div>
             </div>
         </div>
@@ -151,27 +131,27 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 w-full bg-gray-800 border-t border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
         <div class="flex max-w-md mx-auto">
-            <button onclick="switchTab('tracker')" id="nav-tracker" class="flex-1 py-3 text-center text-green-400 border-t-2 border-green-400 font-bold transition-colors">
+            <button onclick="switchTab('tracker')" id="nav-tracker" class="flex-1 py-3 text-center text-green-400 border-t-2 border-green-400 font-bold transition-colors focus:outline-none">
                 <div class="text-xl mb-0.5">⏱️</div>
                 <div class="text-xs uppercase tracking-wide">Tracker</div>
             </button>
-            <button onclick="switchTab('guide')" id="nav-guide" class="flex-1 py-3 text-center text-gray-400 border-t-2 border-transparent hover:text-white transition-colors">
+            <button onclick="switchTab('guide')" id="nav-guide" class="flex-1 py-3 text-center text-gray-400 border-t-2 border-transparent hover:text-white transition-colors focus:outline-none">
                 <div class="text-xl mb-0.5">📋</div>
                 <div class="text-xs uppercase tracking-wide">Guide</div>
             </button>
         </div>
     </nav>
 
-    <!-- Custom Reset Confirmation Modal (Replacing standard alert/confirm) -->
-    <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 modal-bg px-4">
+    <!-- Custom Reset Confirmation Modal -->
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 modal-bg px-4 opacity-0 transition-opacity duration-200">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-transform">
             <h2 class="text-xl font-bold text-white mb-2">Reset Game Data?</h2>
-            <p class="text-gray-400 mb-6">This will zero out the game clock and all individual player times. This action cannot be undone.</p>
+            <p class="text-gray-400 mb-6">This will reset the master clock to 28:00 and clear all individual player times. This action cannot be undone.</p>
             <div class="flex space-x-3">
-                <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-colors" onclick="hideResetModal()">
+                <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-colors focus:outline-none" onclick="hideResetModal()">
                     Cancel
                 </button>
-                <button class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold transition-colors" onclick="confirmReset()">
+                <button class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold transition-colors focus:outline-none" onclick="confirmReset()">
                     Yes, Reset
                 </button>
             </div>
@@ -181,20 +161,18 @@
     <script>
         /**
          * INITIALIZATION & STATE MANAGEMENT
-         * The roster is fixed per requirements.
-         * State is saved in localStorage to persist across accidental refreshes.
          */
-        const STORAGE_KEY = 'team9_basketball_tracker_v2';
+        const STORAGE_KEY = 'team9_basketball_tracker_v3';
+        const GAME_DURATION_SECONDS = 28 * 60; // 28 minutes
         
         const defaultRoster = [
-            "Morgan Cazier", "Elliott Erickson", "Gabriel Frost", "Carter Larsen",
+            "Morgan Cazier", "Elliott Erickson", "Gabe Frost", "Carter Larsen",
             "Jack Lawson", "Finn Squires", "Helio Stevenson", "Miles Webster"
         ];
 
-        // Core application state
         let state = {
-            masterTime: 1680, // Starts at 28:00 (1680 seconds)
-            isRunning: false, // We always default to paused on load for safety
+            masterTime: GAME_DURATION_SECONDS,
+            isRunning: false,
             players: defaultRoster.map(name => ({
                 id: name.toLowerCase().replace(/\s+/g, '-'),
                 name: name,
@@ -209,13 +187,11 @@
         const masterClockEl = document.getElementById('master-clock');
         const startPauseBtn = document.getElementById('btn-start-pause');
         const warningBanner = document.getElementById('warning-banner');
-        const activeCountEl = document.getElementById('active-count');
         const playerListEl = document.getElementById('player-list');
         const resetModal = document.getElementById('reset-modal');
 
         /**
          * FORMATTING
-         * Helper function to format seconds into MM:SS format.
          */
         function formatTime(totalSeconds) {
             const sign = totalSeconds < 0 ? "-" : "";
@@ -233,14 +209,12 @@
             if (savedState) {
                 try {
                     const parsed = JSON.parse(savedState);
-                    // Merge saved state to ensure new code updates don't break old saves
-                    state.masterTime = parsed.masterTime || 0;
+                    state.masterTime = parsed.masterTime !== undefined ? parsed.masterTime : GAME_DURATION_SECONDS;
                     
-                    // Match saved player stats with default roster to preserve integrity
                     state.players = state.players.map(defaultPlayer => {
                         const savedPlayer = parsed.players?.find(p => p.id === defaultPlayer.id);
                         if (savedPlayer) {
-                            return { ...defaultPlayer, time: savedPlayer.time, active: savedPlayer.active };
+                            return { ...defaultPlayer, time: savedPlayer.time || 0, active: !!savedPlayer.active };
                         }
                         return defaultPlayer;
                     });
@@ -248,12 +222,10 @@
                     console.error("Failed to load state from LocalStorage", e);
                 }
             }
-            // Always ensure the clock starts paused upon initialization/reload
-            state.isRunning = false;
+            state.isRunning = false; // Always load in paused state for safety
         }
 
         function saveState() {
-            // Save current state omitting the isRunning flag so it defaults paused next load
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 masterTime: state.masterTime,
                 players: state.players
@@ -279,7 +251,6 @@
         function checkActivePlayers() {
             const activeCount = state.players.filter(p => p.active).length;
             
-            // Show warning if active players is not exactly 5
             if (activeCount === 5) {
                 warningBanner.classList.remove('hidden', 'bg-red-600');
                 warningBanner.classList.add('block', 'bg-green-600');
@@ -290,7 +261,6 @@
                 warningBanner.innerHTML = `⚠️ <span class="font-bold">${activeCount}</span> players on court. Exactly 5 required!`;
             }
             
-            // Style the player rows based on active status
             state.players.forEach(player => {
                 const rowEl = document.getElementById(`row-${player.id}`);
                 if (rowEl) {
@@ -306,7 +276,7 @@
         }
 
         function renderPlayerList() {
-            playerListEl.innerHTML = ''; // Clear current
+            playerListEl.innerHTML = ''; 
             
             state.players.forEach(player => {
                 const isChecked = player.active ? 'checked' : '';
@@ -319,10 +289,10 @@
                             <span class="text-2xl font-mono text-gray-300" id="time-${player.id}">${formatTime(player.time)}</span>
                         </div>
                         
-                        <!-- Toggle Switch -->
+                        <!-- Touch-friendly Toggle Switch -->
                         <label class="relative inline-flex items-center cursor-pointer touch-manipulation">
-                            <input type="checkbox" value="" class="sr-only peer" ${isChecked} onchange="togglePlayer('${player.id}')">
-                            <div class="w-16 h-9 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-8 after:w-8 after:transition-all peer-checked:bg-green-500"></div>
+                            <input type="checkbox" class="sr-only peer toggle-checkbox" ${isChecked} onchange="togglePlayer('${player.id}')">
+                            <div class="w-16 h-9 bg-gray-600 peer-focus:outline-none rounded-full peer-checked:bg-green-500 toggle-label relative transition-colors duration-200 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-8 after:w-8 after:transition-transform after:duration-200"></div>
                         </label>
                         
                     </div>
@@ -334,8 +304,6 @@
         /**
          * INTERACTIONS & LOGIC
          */
-
-        // Called when a player's toggle is switched
         window.togglePlayer = function(playerId) {
             const player = state.players.find(p => p.id === playerId);
             if (player) {
@@ -345,7 +313,6 @@
             }
         };
 
-        // Master Clock Toggle
         window.toggleClock = function() {
             if (state.isRunning) {
                 pauseClock();
@@ -357,24 +324,19 @@
         function startClock() {
             state.isRunning = true;
             
-            // Update button UI
             startPauseBtn.textContent = 'PAUSE';
             startPauseBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
             startPauseBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-500', 'active:bg-yellow-700');
 
-            // Timer Loop
             timerInterval = setInterval(() => {
-                // Decrement master clock
                 state.masterTime--;
                 
-                // Increment time for active players
                 state.players.forEach(p => {
                     if (p.active) {
                         p.time++;
                     }
                 });
 
-                // Update DOM and LocalStorage
                 renderClock();
                 renderPlayerTimes();
                 saveState();
@@ -385,7 +347,6 @@
             state.isRunning = false;
             clearInterval(timerInterval);
             
-            // Update button UI
             startPauseBtn.textContent = 'START';
             startPauseBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500', 'active:bg-yellow-700');
             startPauseBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
@@ -393,31 +354,31 @@
             saveState();
         }
 
-        // Custom Modal Logic for Resetting Data
+        // Custom Modal Logic
         window.showResetModal = function() {
-            // Pause clock automatically when opening reset modal to prevent ghost background increments
             if(state.isRunning) pauseClock();
             
             resetModal.classList.remove('hidden');
-            // Small timeout to allow display:block to apply before animating opacity
+            // Timeout enables the CSS transition
             setTimeout(() => {
                 resetModal.classList.add('opacity-100');
             }, 10);
         };
 
         window.hideResetModal = function() {
-            resetModal.classList.add('hidden');
+            resetModal.classList.remove('opacity-100');
+            setTimeout(() => {
+                resetModal.classList.add('hidden');
+            }, 200);
         };
 
         window.confirmReset = function() {
-            // Zero out state
-            state.masterTime = 1680;
+            state.masterTime = GAME_DURATION_SECONDS;
             state.players.forEach(p => {
                 p.time = 0;
                 p.active = false;
             });
             
-            // Save, hide modal, re-render whole UI
             saveState();
             hideResetModal();
             renderPlayerList();
@@ -426,7 +387,7 @@
         };
 
         /**
-         * TAB NAVIGATION LOGIC
+         * TAB NAVIGATION
          */
         window.switchTab = function(tabName) {
             const tabTracker = document.getElementById('tab-tracker');
@@ -469,7 +430,6 @@
             checkActivePlayers();
         }
 
-        // Start app
         document.addEventListener('DOMContentLoaded', init);
 
     </script>
