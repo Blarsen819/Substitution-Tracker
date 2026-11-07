@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Team 9 Playing Time Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: contain; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Custom toggle styles for smooth animation */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #22c55e;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #22c55e;
+        }
+        .toggle-checkbox:checked + .toggle-label:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+        
+        /* Modal background blur */
+        .modal-bg {
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+    <!-- Sticky Header containing Clock and Controls -->
+    <header class="sticky top-0 z-40 bg-gray-900 border-b border-gray-700 shadow-md">
+        <div class="max-w-md mx-auto px-4 py-5 flex flex-col items-center">
+            
+            <h1 class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2">Team 9 - Grade 4</h1>
+            
+            <!-- Master Game Clock -->
+            <div class="text-6xl font-bold font-mono tracking-tight mb-4 text-white" id="master-clock">
+                00:00
+            </div>
+
+            <!-- Clock Controls -->
+            <div class="flex space-x-4 w-full">
+                <button id="btn-start-pause" class="flex-1 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg" onclick="toggleClock()">
+                    START
+                </button>
+                <button class="flex-none bg-red-900/50 hover:bg-red-800 text-red-300 font-bold py-4 px-6 rounded-xl border border-red-800 transition-colors text-lg" onclick="showResetModal()">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- 5-Player Validation Warning Banner -->
+        <div id="warning-banner" class="hidden bg-red-600 text-white px-4 py-2 text-center text-sm font-semibold transition-all shadow-inner">
+            ⚠️ <span id="active-count">0</span> players on court. Exactly 5 required!
+        </div>
+    </header>
+
+    <!-- Player List Container -->
+    <main class="flex-1 overflow-y-auto pb-8">
+        <div class="max-w-md mx-auto px-4 py-4 space-y-3" id="player-list">
+            <!-- Player rows will be injected here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Custom Reset Confirmation Modal (Replacing standard alert/confirm) -->
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 modal-bg px-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-transform">
+            <h2 class="text-xl font-bold text-white mb-2">Reset Game Data?</h2>
+            <p class="text-gray-400 mb-6">This will zero out the game clock and all individual player times. This action cannot be undone.</p>
+            <div class="flex space-x-3">
+                <button class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-colors" onclick="hideResetModal()">
+                    Cancel
+                </button>
+                <button class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-semibold transition-colors" onclick="confirmReset()">
+                    Yes, Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * INITIALIZATION & STATE MANAGEMENT
+         * The roster is fixed per requirements.
+         * State is saved in localStorage to persist across accidental refreshes.
+         */
+        const STORAGE_KEY = 'team9_basketball_tracker';
+        
+        const defaultRoster = [
+            "Morgan Cazier", "Elliott Erickson", "Gabriel Frost", "Carter Larsen",
+            "Jack Lawson", "Finn Squires", "Helio Stevenson", "Miles Webster"
+        ];
+
+        // Core application state
+        let state = {
+            masterTime: 0,
+            isRunning: false, // We always default to paused on load for safety
+            players: defaultRoster.map(name => ({
+                id: name.toLowerCase().replace(/\s+/g, '-'),
+                name: name,
+                time: 0,
+                active: false
+            }))
+        };
+
+        let timerInterval = null;
+
+        // DOM Elements
+        const masterClockEl = document.getElementById('master-clock');
+        const startPauseBtn = document.getElementById('btn-start-pause');
+        const warningBanner = document.getElementById('warning-banner');
+        const activeCountEl = document.getElementById('active-count');
+        const playerListEl = document.getElementById('player-list');
+        const resetModal = document.getElementById('reset-modal');
+
+        /**
+         * FORMATTING
+         * Helper function to format seconds into MM:SS format.
+         */
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        /**
+         * LOCAL STORAGE SYNCHRONIZATION
+         */
+        function loadState() {
+            const savedState = localStorage.getItem(STORAGE_KEY);
+            if (savedState) {
+                try {
+                    const parsed = JSON.parse(savedState);
+                    // Merge saved state to ensure new code updates don't break old saves
+                    state.masterTime = parsed.masterTime || 0;
+                    
+                    // Match saved player stats with default roster to preserve integrity
+                    state.players = state.players.map(defaultPlayer => {
+                        const savedPlayer = parsed.players?.find(p => p.id === defaultPlayer.id);
+                        if (savedPlayer) {
+                            return { ...defaultPlayer, time: savedPlayer.time, active: savedPlayer.active };
+                        }
+                        return defaultPlayer;
+                    });
+                } catch (e) {
+                    console.error("Failed to load state from LocalStorage", e);
+                }
+            }
+            // Always ensure the clock starts paused upon initialization/reload
+            state.isRunning = false;
+        }
+
+        function saveState() {
+            // Save current state omitting the isRunning flag so it defaults paused next load
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                masterTime: state.masterTime,
+                players: state.players
+            }));
+        }
+
+        /**
+         * UI RENDERING
+         */
+        function renderClock() {
+            masterClockEl.textContent = formatTime(state.masterTime);
+        }
+
+        function renderPlayerTimes() {
+            state.players.forEach(player => {
+                const timeEl = document.getElementById(`time-${player.id}`);
+                if (timeEl) {
+                    timeEl.textContent = formatTime(player.time);
+                }
+            });
+        }
+
+        function checkActivePlayers() {
+            const activeCount = state.players.filter(p => p.active).length;
+            activeCountEl.textContent = activeCount;
+            
+            // Show warning if active players is not exactly 5
+            if (activeCount !== 5) {
+                warningBanner.classList.remove('hidden');
+                warningBanner.classList.add('block');
+            } else {
+                warningBanner.classList.add('hidden');
+                warningBanner.classList.remove('block');
+            }
+            
+            // Style the player rows based on active status
+            state.players.forEach(player => {
+                const rowEl = document.getElementById(`row-${player.id}`);
+                if (rowEl) {
+                    if (player.active) {
+                        rowEl.classList.add('border-green-500', 'bg-gray-800');
+                        rowEl.classList.remove('border-gray-700', 'bg-gray-800/50');
+                    } else {
+                        rowEl.classList.remove('border-green-500', 'bg-gray-800');
+                        rowEl.classList.add('border-gray-700', 'bg-gray-800/50');
+                    }
+                }
+            });
+        }
+
+        function renderPlayerList() {
+            playerListEl.innerHTML = ''; // Clear current
+            
+            state.players.forEach(player => {
+                const isChecked = player.active ? 'checked' : '';
+                
+                const cardHtml = `
+                    <div id="row-${player.id}" class="flex items-center justify-between p-5 rounded-2xl border ${player.active ? 'border-green-500 bg-gray-800' : 'border-gray-700 bg-gray-800/50'} transition-colors shadow-sm">
+                        
+                        <div class="flex flex-col">
+                            <span class="text-xl font-bold text-white mb-1">${player.name}</span>
+                            <span class="text-2xl font-mono text-gray-300" id="time-${player.id}">${formatTime(player.time)}</span>
+                        </div>
+                        
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer touch-manipulation">
+                            <input type="checkbox" value="" class="sr-only peer" ${isChecked} onchange="togglePlayer('${player.id}')">
+                            <div class="w-16 h-9 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-8 after:w-8 after:transition-all peer-checked:bg-green-500"></div>
+                        </label>
+                        
+                    </div>
+                `;
+                playerListEl.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        /**
+         * INTERACTIONS & LOGIC
+         */
+
+        // Called when a player's toggle is switched
+        window.togglePlayer = function(playerId) {
+            const player = state.players.find(p => p.id === playerId);
+            if (player) {
+                player.active = !player.active;
+                saveState();
+                checkActivePlayers();
+            }
+        };
+
+        // Master Clock Toggle
+        window.toggleClock = function() {
+            if (state.isRunning) {
+                pauseClock();
+            } else {
+                startClock();
+            }
+        };
+
+        function startClock() {
+            state.isRunning = true;
+            
+            // Update button UI
+            startPauseBtn.textContent = 'PAUSE';
+            startPauseBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+            startPauseBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-500', 'active:bg-yellow-700');
+
+            // Timer Loop
+            timerInterval = setInterval(() => {
+                // Increment master clock
+                state.masterTime++;
+                
+                // Increment time for active players
+                state.players.forEach(p => {
+                    if (p.active) {
+                        p.time++;
+                    }
+                });
+
+                // Update DOM and LocalStorage
+                renderClock();
+                renderPlayerTimes();
+                saveState();
+            }, 1000);
+        }
+
+        function pauseClock() {
+            state.isRunning = false;
+            clearInterval(timerInterval);
+            
+            // Update button UI
+            startPauseBtn.textContent = 'START';
+            startPauseBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-500', 'active:bg-yellow-700');
+            startPauseBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'active:bg-green-700');
+            
+            saveState();
+        }
+
+        // Custom Modal Logic for Resetting Data
+        window.showResetModal = function() {
+            // Pause clock automatically when opening reset modal to prevent ghost background increments
+            if(state.isRunning) pauseClock();
+            
+            resetModal.classList.remove('hidden');
+            // Small timeout to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                resetModal.classList.add('opacity-100');
+            }, 10);
+        };
+
+        window.hideResetModal = function() {
+            resetModal.classList.add('hidden');
+        };
+
+        window.confirmReset = function() {
+            // Zero out state
+            state.masterTime = 0;
+            state.players.forEach(p => {
+                p.time = 0;
+                p.active = false;
+            });
+            
+            // Save, hide modal, re-render whole UI
+            saveState();
+            hideResetModal();
+            renderPlayerList();
+            renderClock();
+            checkActivePlayers();
+        };
+
+        /**
+         * BOOTSTRAP
+         */
+        function init() {
+            loadState();
+            renderPlayerList();
+            renderClock();
+            checkActivePlayers();
+        }
+
+        // Start app
+        document.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
